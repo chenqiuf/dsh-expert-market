@@ -67,7 +67,7 @@
       "versions": [
         {
           "version": "1.0.0",
-          "publishTimestamp": 1795444056441,
+          "publishTimestamp": 1795444100457,
           "source": {
             "type": "npm"
           },
@@ -77,11 +77,11 @@
         },
         {
           "version": "1.0.0",
-          "publishTimestamp": 1795444056441,
+          "publishTimestamp": 1795444100457,
           "source": {
             "type": "git",
             "url": "https://github.com/YOUR-GITHUB-NAME/dsh-expert-market.git",
-            "commit": "ea10504f9242d0cc0f6f311c015463c6dc0d7921"
+            "commit": "a01f1101ebdcf42a6e133baf6d767e96aba8f772"
           },
           "engines": {
             "dsh": ">=0.2.0"
