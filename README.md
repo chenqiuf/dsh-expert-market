@@ -107,3 +107,8 @@ DeepSeek Harness 的插件市场页面：把「插件」页里一行一条的索
 - `test/host-naming.mjs`：Host 取名接口端到端，覆盖持久化、改名冻结、坏名自愈、模型纠错
 
 **改代码请改 `src/`，不要手改 `client.js`。**
+
+## 维护与发布
+
+- 改代码、升版本、发布、出问题回滚：见 [MAINTENANCE.md](MAINTENANCE.md)（执行标准）
+- 首次发布到 npm 与 GitHub：见 [PUBLISHING.md](PUBLISHING.md)
