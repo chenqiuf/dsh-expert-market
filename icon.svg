@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" role="img" aria-label="Expert market">
+  <defs>
+    <linearGradient id="demIconA" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5b7fc4"/>
+      <stop offset="1" stop-color="#3c5b96"/>
+    </linearGradient>
+    <linearGradient id="demIconB" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8fb0e0"/>
+      <stop offset="1" stop-color="#6a8cc6"/>
+    </linearGradient>
+  </defs>
+  <rect x="7" y="9" width="10" height="18" rx="2.4" fill="url(#demIconA)"/>
+  <rect x="19" y="9" width="10" height="18" rx="2.4" fill="url(#demIconB)"/>
+  <path d="M10 15.4h4M10 20.2h4M22 15.4h4M22 20.2h4" stroke="#ffffff" stroke-opacity="0.82" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M7 12.6h10M19 12.6h10" stroke="#ffffff" stroke-opacity="0.34" stroke-width="0.9" stroke-linecap="round"/>
+  <circle cx="29.4" cy="8.4" r="3.1" fill="#f0b64e"/>
+  <path d="M29.4 6.6v3.6M27.6 8.4h3.6" stroke="#8a5c12" stroke-width="0.9" stroke-linecap="round"/>
+</svg>

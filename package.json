@@ -1,0 +1,58 @@
+{
+  "name": "dsh-expert-market",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "description": "精选市场：以插画分类大卡、每日轮换和中文自动取名，浏览并按索引安装 DeepSeek Harness 插件。",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "docs",
+    "icon.svg"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-api-remotes",
+        "@deepseek-ai/dsh-api-remote-access",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout"
+      ]
+    }
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "dsh-bundle",
+    "plugin-market",
+    "marketplace",
+    "curated",
+    "chinese",
+    "中文"
+  ],
+  "author": {
+    "name": "DSH Expert Market"
+  },
+  "homepage": "https://github.com/YOUR-GITHUB-NAME/dsh-expert-market#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR-GITHUB-NAME/dsh-expert-market.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "dsh": ">=0.2.0"
+  }
+}

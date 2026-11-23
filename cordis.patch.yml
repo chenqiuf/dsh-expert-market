@@ -1,0 +1,8 @@
+# The expert-style plugin market page: one browser half that adds a sidebar
+# panel entry and a full-width main panel, drawing the configured plugin market
+# indexes as a browsable catalog. The Host half is empty, so this bundle adds no
+# Host rows: every read and install goes through the pluginMarket and
+# pluginManager Remotes that the web application already composes.
+- insert:
+    - id: expert-market
+      name: 'dsh-expert-market'
