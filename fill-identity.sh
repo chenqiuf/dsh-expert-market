@@ -33,7 +33,7 @@ root = pathlib.Path('.')
 p = root / 'package.json'
 d = json.loads(p.read_text())
 repo = f'https://github.com/{gh}/dsh-expert-market'
-d['author'] = {'name': author}
+d['author'] = {'name': author, 'email': contact}
 d['homepage'] = f'{repo}#readme'
 d['repository'] = {'type': 'git', 'url': f'{repo}.git'}
 p.write_text(json.dumps(d, ensure_ascii=False, indent=2) + '\n')
@@ -45,6 +45,10 @@ entry = d['plugins'][0]
 entry['author'] = author
 entry['homepage'] = repo
 entry['repository'] = {'url': repo}
+# The Git install source is its own field, and the one a reader actually installs from.
+for source in entry['versions']:
+    if source['source']['type'] == 'git':
+        source['source']['url'] = f'{repo}.git'
 p.write_text(json.dumps(d, ensure_ascii=False, indent=2) + '\n')
 
 # 3) The detail page: the contact line and the index address a reader copies.

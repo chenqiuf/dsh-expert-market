@@ -44,12 +44,13 @@
     "中文"
   ],
   "author": {
-    "name": "DSH Expert Market"
+    "name": "陈秋峰",
+    "email": "478826521@qq.com"
   },
-  "homepage": "https://github.com/YOUR-GITHUB-NAME/dsh-expert-market#readme",
+  "homepage": "https://github.com/chenqiuf/dsh-expert-market#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR-GITHUB-NAME/dsh-expert-market.git"
+    "url": "https://github.com/chenqiuf/dsh-expert-market.git"
   },
   "license": "MIT",
   "engines": {

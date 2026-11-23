@@ -43,10 +43,10 @@
         "zh": "全中文 DSH 精选插件市场。31 个分类插画大卡每日轮换，插件卡片可按热度与时间筛选，每个插件一页完整说明书；没有中文名的插件自动给出中文名，且起过就不变。已安装页支持启用、停用、卸载与单个/批量更新。",
         "en": "A full page plugin catalogue: 31 illustrated category cards rotated daily, a grid filterable by traction and age, and a full page of documents per plugin. Gives every plugin a permanent Chinese name, and manages enable, disable, removal and batch updates."
       },
-      "author": "YOUR-NAME",
-      "homepage": "https://github.com/YOUR-GITHUB-NAME/dsh-expert-market",
+      "author": "陈秋峰",
+      "homepage": "https://github.com/chenqiuf/dsh-expert-market",
       "repository": {
-        "url": "https://github.com/YOUR-GITHUB-NAME/dsh-expert-market"
+        "url": "https://github.com/chenqiuf/dsh-expert-market"
       },
       "metadata": {
         "category": "market",
@@ -80,7 +80,7 @@
           "publishTimestamp": 1795444107365,
           "source": {
             "type": "git",
-            "url": "https://github.com/YOUR-GITHUB-NAME/dsh-expert-market.git",
+            "url": "https://github.com/chenqiuf/dsh-expert-market.git",
             "commit": "49644ad6ec40080f88f674f8248f9b636e923377"
           },
           "engines": {

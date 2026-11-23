@@ -37,7 +37,7 @@ DSH 自带的插件页是一行一条的索引列表。插件多起来之后，�
 在 DSH 的「插件」页打开「发现」，添加索引源：
 
 ```
-https://YOUR-DOMAIN/dsh/index.json
+https://chenqiuf.github.io/dsh-expert-market/index.json
 ```
 
 然后搜索「精选市场」安装。安装会走与插件页相同的档案安装流程，
@@ -68,7 +68,7 @@ dsh plugin add dsh-expert-market
 | DSH 插件开发 | 按你的业务流程定制插件 |
 | 界面定制 | 按你们的品牌视觉改造插件页面 |
 
-联系方式：`YOUR-CONTACT`
+联系方式：`478826521@qq.com`
 
 > 这个插件本身不收费，也不会因为付费而改变功能。
 > 上面的定制服务是独立项目，与插件功能无关。
