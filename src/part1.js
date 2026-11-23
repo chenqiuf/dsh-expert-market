@@ -5,6 +5,9 @@
     const PANEL_ID = 'expert-market'
     /** This plugin's own npm package, whose downloads the header reports. */
     const OWN_PACKAGE = 'dsh-expert-market'
+    /** The count a download figure must reach before it is shown at all. Below this a
+     *  number reads as "almost nobody uses it", which is worse than saying nothing. */
+    const DOWNLOADS_FLOOR = 100
     /** The largest page the Host accepts: its query schema refuses anything above 100. */
     const HOST_PAGE_LIMIT = 100
     /** How many host pages one Chinese-name search will read before giving up. */
@@ -798,7 +801,9 @@
         }
         if (this.disposed) return
         const count = Number(answer?.downloads)
-        if (Number.isFinite(count) && count > 0) this.patch({ downloads: count })
+        // Below the floor the header stays empty: a small number advertises the wrong
+        // thing, and the page is better off saying nothing.
+        if (Number.isFinite(count) && count >= DOWNLOADS_FLOOR) this.patch({ downloads: count })
       }
 
       /** The day number used by the daily rotation. */
