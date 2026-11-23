@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Curated market",
-    "description": "Browses the configured plugin market indexes on one full-width page: illustrated category cards, a plugin grid filterable by traction and publish age, and a page of facts and documents for each plugin. Installing from here runs the same profile installation as the Plugins page and follows its progress in a dialog.",
+    "description": "A full-page DSH plugin market: 31 illustrated category cards rotated daily, a grid filterable by traction and publish age, a full page of documents per plugin, and an automatic Chinese name for any plugin that ships without one — fixed once given. Installing from here runs the same profile flow as the Plugins page and follows its progress in a dialog.",
     "detail": "docs/DETAIL.md"
   }
 }

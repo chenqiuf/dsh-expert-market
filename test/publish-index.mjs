@@ -60,6 +60,17 @@ if (parsed.success) {
   console.log('  引用未声明分类:', badCat ? p.metadata.category : '无')
   console.log('  引用未声明标签:', badLabel.length ? badLabel.join(',') : '无')
   console.log('  引用未声明排序键:', badSort.length ? badSort.join(',') : '无')
+  // The listing blurb carries a promise a reader can check, so the two facts behind it
+  // must stay in the text: the daily rotation and the permanent name.
+  const zh = p.description?.zh ?? ''
+  const promises = [
+    ['点名了全中文与 DSH', zh.includes('全中文') && zh.includes('DSH')],
+    ['写明了每日轮换', /每日轮换|每天换/.test(zh)],
+    ['写明了名字不再变', /起过就不变|起过就不变|永久不变/.test(zh)],
+  ]
+  for (const [label, ok] of promises) console.log((ok ? '  ✓ ' : '  ✗ ') + label)
+  if (promises.some(([, ok]) => !ok)) process.exitCode = 1
+
 } else {
   console.error('✗ 校验失败:')
   for (const issue of parsed.error.issues) console.error('  -', issue.path.join('.'), issue.message)

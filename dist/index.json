@@ -2,20 +2,32 @@
   "metadata": {
     "categories": {
       "market": {
-        "title": { "zh": "插件市场", "en": "Plugin market" }
+        "title": {
+          "zh": "插件市场",
+          "en": "Plugin market"
+        }
       },
       "tools": {
-        "title": { "zh": "工具", "en": "Tools" }
+        "title": {
+          "zh": "工具",
+          "en": "Tools"
+        }
       }
     },
     "labels": {
       "dsh-plugin": {
-        "title": { "zh": "DSH 插件", "en": "DSH plugin" }
+        "title": {
+          "zh": "DSH 插件",
+          "en": "DSH plugin"
+        }
       }
     },
     "sortKeys": {
       "added": {
-        "title": { "zh": "收录时间", "en": "Added" },
+        "title": {
+          "zh": "收录时间",
+          "en": "Added"
+        },
         "order": "desc"
       }
     }
@@ -28,7 +40,7 @@
         "en": "Curated market"
       },
       "description": {
-        "zh": "整页插件目录：31 个分类插画大卡每日轮换，插件卡片可按热度与时间筛选，每个插件一页完整说明书；自动为插件生成永久不变的中文名，并支持启用、停用、卸载与批量更新。",
+        "zh": "全中文 DSH 精选插件市场。31 个分类插画大卡每日轮换，插件卡片可按热度与时间筛选，每个插件一页完整说明书；没有中文名的插件自动给出中文名，且起过就不变。已安装页支持启用、停用、卸载与单个/批量更新。",
         "en": "A full page plugin catalogue: 31 illustrated category cards rotated daily, a grid filterable by traction and age, and a full page of documents per plugin. Gives every plugin a permanent Chinese name, and manages enable, disable, removal and batch updates."
       },
       "author": "YOUR-NAME",
@@ -38,16 +50,30 @@
       },
       "metadata": {
         "category": "market",
-        "keywords": ["插件市场", "目录", "中文取名", "catalog", "marketplace"],
-        "labels": ["dsh-plugin"],
-        "sortKeys": { "added": 20261123 }
+        "keywords": [
+          "插件市场",
+          "目录",
+          "中文取名",
+          "catalog",
+          "marketplace"
+        ],
+        "labels": [
+          "dsh-plugin"
+        ],
+        "sortKeys": {
+          "added": 20261123
+        }
       },
       "versions": [
         {
           "version": "1.0.0",
           "publishTimestamp": 1795440000000,
-          "source": { "type": "npm" },
-          "engines": { "dsh": ">=0.2.0" }
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
         },
         {
           "version": "1.0.0",
@@ -55,9 +81,11 @@
           "source": {
             "type": "git",
             "url": "https://github.com/YOUR-GITHUB-NAME/dsh-expert-market.git",
-            "commit": "REPLACE-WITH-FULL-COMMIT-SHA"
+            "commit": "7fa5ca214e8220ccfb21adc7134179c8ae020684"
           },
-          "engines": { "dsh": ">=0.2.0" }
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
         }
       ]
     }
