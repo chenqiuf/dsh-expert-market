@@ -7,11 +7,11 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 VERSION=$(node -p "require('./package.json').version")
-# The commit must be the one that contains the current code, which means everything is
-# committed first; a dirty tree would publish code no commit points at.
-DIRTY=$(git status --porcelain 2>/dev/null | head -1)
+# Only the index may be uncommitted: everything else must already be in the commit
+# whose hash the index will name, or the index would point at code without it.
+DIRTY=$(git status --porcelain 2>/dev/null | grep -v '^.. dist/index.json$' | head -1)
 if [ -n "$DIRTY" ]; then
-  echo "✗ 有未提交的改动，先提交再同步索引（否则索引指向的代码不含这些改动）"
+  echo "✗ 除 dist/index.json 外还有未提交的改动，先提交它们"
   git status --short | head -10
   exit 1
 fi
