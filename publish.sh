@@ -49,6 +49,10 @@ publish_npm() {
     exit 1
   fi
   echo "== npm 发布 $name@$version"
+  echo
+  echo "这一步需要你本人确认：npm 会打开浏览器让你授权，"
+  echo "或者在终端里问一次性验证码（30 秒有效，请当场输入）。"
+  echo
   # 索引走的是公共 npm，用公共 registry 发布，而不是本机配置的镜像。
   npm publish --access public --registry=https://registry.npmjs.org
   echo "✓ 已发布：https://www.npmjs.com/package/$name"
