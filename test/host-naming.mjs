@@ -237,6 +237,45 @@ console.log('a wrong method is refused:', wrong.status === 405)
   if (answer.names[victim] !== undefined) process.exitCode = 1
 }
 
+// A title that carries no Chinese: an English phrase, a pinyin word, an abbreviation,
+// and a coined brand name. Each must still produce a usable Chinese name.
+{
+  const path = join(home, 'expert-market', 'plugin-names.json')
+  const store = JSON.parse(await readFile(path, 'utf8'))
+  const cases = [
+    ['c-en', 'Memory Panel', 'Shows project memory in a side panel.'],
+    ['c-pinyin', 'jiyi', 'Saves project memory.'],
+    ['c-abbr', 'PDF TOC', 'Table of contents for PDF files.'],
+    ['c-brand', 'Zephyr', 'A widget for the sidebar.'],
+  ]
+  for (const [name] of cases) { delete store.names[name]; delete store.by[name] }
+  const { writeFile } = await import('node:fs/promises')
+  await writeFile(path, JSON.stringify(store), 'utf8')
+
+  let handler6 = null
+  const stub = await import('/Users/mac/Documents/deepseek-harness/default-workspace/dsh-expert-market/index.js?v=6')
+  stub.apply({
+    get() { return undefined },
+    inject(_n, fn) { fn({ effect: f => f(), webServer: { register: r => { handler6 = r.handler; return () => {} } } }) },
+    logger: { warn() {}, info() {} },
+  })
+  const call6 = (body) => new Promise((resolve) => {
+    const chunks = [Buffer.from(JSON.stringify(body))]
+    const req = { method: 'POST', on(e, l) { if (e === 'data') for (const c of chunks) l(c); if (e === 'end') l(); return req }, destroy() {} }
+    const res = { headersSent: false, writeHead() { res.headersSent = true }, end(t) { resolve(JSON.parse(t)) } }
+    handler6(req, res)
+  })
+  const answer = await call6({ entries: cases.map(([name, title, description]) => ({ name, title, description, category: '' })) })
+  for (const [name, title] of cases) {
+    const given = answer.names[name]
+    const ok = typeof given === 'string' && /[\u4e00-\u9fff]/.test(given) && !/^(插件|工具|应用)\1+$/.test(given)
+    console.log(`  ${ok ? 'ok  ' : 'FAIL'} ${title} -> ${given}`)
+    if (!ok) process.exitCode = 1
+  }
+  console.log('a latin-only title still gets a Chinese name:', Object.entries(answer.names)
+    .filter(([name]) => cases.some(([n]) => n === name)).length === cases.length)
+}
+
 await rm(home, { recursive: true, force: true })
 const ok = Object.keys(names).length === LIMIT && chinese === LIMIT && kept && second.body.added === 0 && bad.status === 400
 console.log(ok ? '\nHOST OK' : '\nHOST PROBLEM')

@@ -315,6 +315,111 @@ const CUT_TAIL = /(?:遥|超|小|多|大|长|短|高|低|快|慢|新|旧|早|晚
  * @param description the entry's Chinese description, with its leading figures.
  * @returns a head word such as `输入框`, or an empty string.
  */
+/**
+ * Pinyin syllables that name a plugin's subject.
+ *
+ * A title written in pinyin carries its meaning in the sound, so translation has to go
+ * through a pronunciation table rather than a word map. Full pinyin segmentation is
+ * not worth its weight here; these are the subjects plugin names actually use, and the
+ * list is only consulted for a title that is otherwise unreadable.
+ */
+/**
+ * Title abbreviations that stand for a common thing.
+ *
+ * "PDF TOC" says nothing until TOC is read as 目录; the description usually spells it
+ * out, but a fallback that knows the few initialisms plugin names use costs nothing.
+ */
+const ABBREVIATIONS = {
+  toc: '目录', api: '接口', ui: '界面', ux: '体验', cli: '命令行', gui: '图形界面',
+  sdk: '开发包', pdf: 'PDF', csv: 'CSV', json: 'JSON', yaml: 'YAML', xml: 'XML',
+  sql: 'SQL', http: 'HTTP', https: 'HTTPS', ssh: 'SSH', sftp: 'SFTP', ftp: 'FTP',
+  url: '链接', uri: '链接', uuid: '标识', id: '标识', ai: 'AI', llm: '大模型',
+  mcp: 'MCP', dns: 'DNS', cdn: 'CDN', oss: '对象存储', db: '数据库', orm: '数据层',
+  png: 'PNG', jpg: 'JPG', gif: 'GIF', svg: 'SVG', md: 'Markdown', html: 'HTML',
+  css: 'CSS', js: 'JS', ts: 'TS', py: 'Python', app: '应用',
+}
+
+/**
+ * A title built from abbreviations, read as the words they stand for.
+ * @param title the entry's English title.
+ * @returns the Chinese phrase, or '' when the title is not an abbreviation chain.
+ */
+function abbreviationName(title) {
+  const words = String(title ?? '').toLowerCase().split(/[-_.\s]+/).filter(Boolean)
+  if (words.length === 0) return ''
+  const mapped = words.map(word => ABBREVIATIONS[word] ?? '')
+  if (mapped.every(word => word === '')) return ''
+  // Only an all-abbreviation title is read this way: a mixed title already translates
+  // through the word map, and joining the two would read as a sentence.
+  if (mapped.some(word => word === '')) return ''
+  return mapped.join('')
+}
+
+const PINYIN = {
+  jiyi: '记忆', neicun: '内存',
+  biji: '笔记', rizhi: '日志',
+  xiangce: '相册', zhaopian: '照片', tupian: '图片', tuxiang: '图像',
+  wendang: '文档', wenjian: '文件', mulu: '目录', wenjianjia: '文件夹',
+  sousuo: '搜索', chazhao: '查找', jiansuo: '检索',
+  fanyi: '翻译', yuyin: '语音', shengyin: '声音', yinyue: '音乐', shipin: '视频',
+  daima: '代码', bianji: '编辑', bianjiqi: '编辑器', geshi: '格式',
+  gongju: '工具', chajian: '插件', peizhi: '配置', shezhi: '设置',
+  xiangmu: '项目', renwu: '任务', daiban: '待办', jihua: '计划',
+  richeng: '日程', rili: '日历', tixing: '提醒', naozhong: '闹钟', jishi: '计时',
+  tongbu: '同步', beifen: '备份', huifu: '恢复', daoru: '导入', daochu: '导出',
+  shangchuan: '上传', xiazai: '下载', yasuo: '压缩', jiami: '加密', jiemi: '解密',
+  anquan: '安全', quanxian: '权限', renzheng: '认证', denglu: '登录',
+  zhuti: '主题', yanse: '颜色', beijing: '背景', biaoti: '标题', ziti: '字体',
+  shijian: '事件', xiaoxi: '消息', duihua: '对话', huihua: '会话', liaotian: '聊天',
+  zhishi: '知识', wenzhang: '文章', xuexi: '学习', jiaocheng: '教程',
+  jiankong: '监控', tongji: '统计', fenxi: '分析', baobiao: '报表', shuju: '数据',
+  wangluo: '网络', liulan: '浏览', wangye: '网页', xiazaiqi: '下载器',
+  yunxing: '运行', qidong: '启动', tingzhi: '停止', anzhuang: '安装', xiezai: '卸载',
+  shengji: '升级', gengxin: '更新', xiufu: '修复', ceshi: '测试', jiaoyan: '校验',
+  bijiao: '比较', chayi: '差异', hebing: '合并', chaifen: '拆分', zhuanhuan: '转换',
+}
+
+/** The Chinese meaning of a pinyin word, when the table knows it. */
+function pinyinMeaning(word) {
+  const key = String(word ?? '').toLowerCase().replace(/[^a-z]/g, '')
+  return PINYIN[key] ?? ''
+}
+
+/**
+ * A name read from what the plugin does, for a plugin whose own name says nothing.
+ *
+ * The fallback used to be the category alone ("插件插件"), which tells a reader
+ * nothing at all. This looks for a function the description states in either
+ * language — the Chinese object rules first, then the English vocabulary — and pairs
+ * it with the category only when the function alone is too thin to name a plugin.
+ *
+ * @param description the entry's description, in whichever language it has.
+ * @param category the Chinese category word.
+ * @returns a functional name, or '' when the description states no function.
+ */
+function functionalFallback(description, category) {
+  const text = String(description ?? '')
+  // Chinese function words, in the same shape the object rules already understand.
+  const chinese = objectName(text)
+  if (chinese !== '' && chinese.length >= 3) return chinese
+  // English: translate the words that name a thing, then keep the longest phrase.
+  const words = tokens(text).filter(word => !NOISE.has(word))
+  const mapped = []
+  for (const word of words) {
+    const value = WORDS[word]
+    if (value !== undefined && !mapped.includes(value) && !GENERIC.has(value)) mapped.push(value)
+  }
+  if (mapped.length >= 2) return mapped.slice(0, 2).join('')
+  if (mapped.length === 1) {
+    // One recognised word names a thing, not a function: pair it with the category so
+    // the result reads as a plugin rather than a bare noun.
+    const word = mapped[0]
+    return word.length >= 3 ? word : `${word}${category}`
+  }
+  if (chinese !== '') return `${chinese}${category}`
+  return ''
+}
+
 /** The name a description declares before its first colon, when it reads as one. */
 function declaredName(description) {
   const text = String(description).replace(/^[★☆\s\d,.]+│?\s*/, '').trim()
@@ -359,7 +464,7 @@ function functionName(description) {
 }
 
 /** Guarantee a short, Chinese, non-empty name. */
-function finish(candidate, category, description) {
+function finish(candidate, category, description, fromSound = false) {
   let name = String(candidate)
     .replace(/\([^()]*\)|（[^（）]*）/g, '')
     .replace(/[—–\-·|/]+/g, ' ')
@@ -392,7 +497,9 @@ function finish(candidate, category, description) {
   if (GENERIC.has(name)) {
     const object = objectName(description)
     if (object !== '' && object !== name && !GENERIC.has(object)) name = `${object} · ${name}`
-    else name = name.includes(category) || category.includes(name) ? `${name}插件` : `${category} · ${name}`
+    // A subject read from the sound of the title (记忆 from "jiyi") is not made
+    // clearer by a category prefix, so the bare word stands.
+    else if (!fromSound) name = name.includes(category) || category.includes(name) ? `${name}插件` : `${category} · ${name}`
   }
   return name
 }
@@ -458,6 +565,40 @@ function chineseName(entry) {
   if (functional !== '') return finish(functional, category, description)
   const object = objectName(description)
   if (object !== '') return finish(object, category, description)
+
+  // A title of abbreviations ("PDF TOC") is read as the words they stand for.
+  const abbreviated = abbreviationName(titleEn)
+  if (abbreviated !== '') {
+    const named = finish(abbreviated, category, description)
+    if (CJK.test(named)) return named
+  }
+
+  // A title written in pinyin carries its meaning in the sound: "jiyi" is 记忆, and no
+  // word map would ever say so. Each dash- or dot-separated piece is looked up.
+  // Only the title: reading the description's own pinyin would build a sentence
+  // ("项目记忆插件"), which then collapses into the generic fallback.
+  const pinyinWords = String(titleEn).toLowerCase().split(/[-_.\s]+/).filter(Boolean)
+  const pinyinNames = pinyinWords.map(pinyinMeaning).filter(word => word !== '')
+  if (pinyinNames.length > 0) {
+    const named = finish(pinyinNames.slice(0, 2).join(''), category, description, true)
+    // `finish` has already made it readable; a word the sound lookup established is a
+    // real name even when it is also a common category word.
+    if (CJK.test(named)) return named
+  }
+  // The package name is often the only readable hint: "dsh-foxy-bili" says 哔哩哔哩.
+  const nameWords = String(entry.name ?? '').toLowerCase().split(/[-_.@/]+/).filter(Boolean)
+  const fromName = nameWords.map(word => pinyinMeaning(word) || WORDS[word] || '').filter(word => word !== '')
+  if (fromName.length > 0) {
+    const named = finish([...new Set(fromName)].slice(0, 2).join(''), category, description)
+    if (CJK.test(named) && !GENERIC.has(named)) return named
+  }
+
+  // Nothing in the name or the description gave a word: name it by what it does.
+  const functional2 = functionalFallback(description, category)
+  if (functional2 !== '') {
+    const named = finish(functional2, category, description)
+    if (CJK.test(named) && !GENERIC.has(named)) return named
+  }
 
   // The category, so the name is always Chinese and readable.
   return `${category}插件`
