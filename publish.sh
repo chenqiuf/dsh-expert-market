@@ -55,7 +55,8 @@ publish_npm() {
 }
 
 git_step() {
-  echo "== Git 提交"
+  echo "== 同步索引并提交"
+  ./sync-index.sh
   git add -A
   if ! git diff --cached --quiet; then
     local msg
@@ -68,10 +69,8 @@ git_step() {
   local sha
   sha=$(git rev-parse HEAD)
   echo
-  echo "索引里的 git 版本要填这个 commit："
-  echo "  $sha"
-  echo
-  echo "如果 dist/index.json 里还是旧值，把它替换成上面的 SHA 后再提交一次。"
+  echo "索引已指向本次提交：$sha"
+  echo "把 dist/index.json 放到公网即为最新索引。"
 }
 
 case "$MODE" in

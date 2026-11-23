@@ -21,9 +21,30 @@
 
 ---
 
-## 二、发布前必须替换的占位符
+## 二、一条命令填好身份信息
 
-一共 5 个，`./publish.sh check` 会逐个检查，缺一个都不让发。
+```bash
+./fill-identity.sh <GitHub用户名> <作者名> <联系方式> <索引URL>
+```
+
+例如：
+
+```bash
+./fill-identity.sh zhangsan "张三" "微信 zs2024" "https://zhangsan.github.io/dsh-expert-market/index.json"
+```
+
+它会自动做四件事：
+
+1. 把 GitHub 用户名写进 `package.json` 的 `homepage` 和 `repository`
+2. 把作者名写进索引条目
+3. 把联系方式写进详情页（`docs/DETAIL.md`）
+4. 把索引地址写进详情页，然后同步版本与 commit
+
+跑完会直接显示检查结果，全绿就能发布。
+
+### 手动替换（如果不想用脚本）
+
+一共 4 个占位符，`./publish.sh check` 会逐个检查，缺一个都不让发。
 
 | 占位符 | 在哪 | 替换成 |
 |---|---|---|
@@ -31,7 +52,6 @@
 | `YOUR-NAME` | `dist/index.json` 的 `author` | 你的名字或团队名 |
 | `YOUR-CONTACT` | `docs/DETAIL.md` 结尾 | 微信号 / 邮箱 / 网址 |
 | `YOUR-DOMAIN` | `docs/DETAIL.md` 的索引地址 | 你放 index.json 的域名 |
-| `REPLACE-WITH-FULL-COMMIT-SHA` | `dist/index.json` 的 git 版本 | 见下面第 4 步，自动拿到 |
 
 替换完再运行：
 
@@ -39,7 +59,10 @@
 ./publish.sh check
 ```
 
-它会：检查占位符 → 构建 → 跑全部测试（136 项）→ 校验索引 schema。
+它会：检查占位符 → 构建 → 跑全部测试（143 项）→ 校验索引 schema。
+
+> 索引里的 git commit **不需要手填**：`./publish.sh git` 和 `./fill-identity.sh`
+> 都会调用 `./sync-index.sh` 自动写入，保证索引指向的正是当前代码。
 
 ---
 
@@ -69,15 +92,14 @@ git remote add origin https://github.com/YOUR-GITHUB-NAME/dsh-expert-market.git
 git push -u origin main
 ```
 
-拿到 commit 并填进索引：
+提交并让索引指向这个提交：
 
 ```bash
-./publish.sh git        # 提交并打印完整 commit SHA
+./publish.sh git
 ```
 
-把打印出的 40 位 SHA 填进 `dist/index.json` 的
-`versions[1].source.commit`（替换 `REPLACE-WITH-FULL-COMMIT-SHA`），
-然后 `./publish.sh git` 再提交一次。
+这一步会自动：同步索引里的版本号与 commit → 提交 → 打印最终的 SHA。
+**不需要手工复制 SHA**，脚本会保证索引与代码一致。
 
 **为什么 Git 版本必须写完整 commit**：宿主的 Git 安装源要求固定到具体 commit，
 不接受分支名。写分支名会导致安装失败。这是宿主强制的，不是我的选择。
