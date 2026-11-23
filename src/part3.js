@@ -143,6 +143,7 @@
       // background and is usually ready before the reader switches to it.
       useEffect(() => {
         controller.primeInstalled()
+        controller.loadDownloads()
         controller.warmCatalogue()
       }, [])
       // `listing` is read by the resolvers below, so it is bound first.
@@ -206,7 +207,17 @@
           h('header', { className: 'dem-head' },
             h('div', { className: 'dem-headTop' },
               h('div', { className: 'dem-headText' },
-                h('h1', { className: 'dem-title' }, t('title')),
+                h('div', { className: 'dem-titleRow' },
+                  h('h1', { className: 'dem-title' }, t('title')),
+                  // Only when npm answered: an absent figure is better than a guess,
+                  // and the link lets a reader check it.
+                  state.downloads === null ? null : h('a', {
+                    className: 'dem-downloads',
+                    href: `https://www.npmjs.com/package/dsh-expert-market`,
+                    target: '_blank', rel: 'noreferrer noopener',
+                    title: t('downloadsHint'),
+                  }, h(IconDownload, { size: 12 }),
+                  fill(t('downloads'), { count: formatCount(state.downloads) }))),
                 h('p', { className: 'dem-subtitle' }, t('subtitle'))),
               h('div', { className: 'dem-toolbar' },
                 state.indexes.length <= 1 ? null

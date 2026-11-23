@@ -18,6 +18,8 @@ window.__ModuleLoader__.load({
     const NS = 'expertMarket'
     /** Main-panel key and sidebar entry id; one value so the panel and its icon stay paired. */
     const PANEL_ID = 'expert-market'
+    /** This plugin's own npm package, whose downloads the header reports. */
+    const OWN_PACKAGE = 'dsh-expert-market'
     /** The largest page the Host accepts: its query schema refuses anything above 100. */
     const HOST_PAGE_LIMIT = 100
     /** How many host pages one Chinese-name search will read before giving up. */
@@ -57,6 +59,8 @@ window.__ModuleLoader__.load({
       title: '精选市场',
       tabMarket: '更多精选插件',
       tabInstalled: '已安装',
+      downloads: '已被下载 {count} 次',
+      downloadsHint: '本插件在 npm 上的下载次数，点击查看',
       installedTitle: '已安装插件',
       installedHint: '在这里启用、停用或卸载插件；随 DSH 提供的插件不能卸载。',
       installedCount: '{count} 个',
@@ -227,6 +231,8 @@ window.__ModuleLoader__.load({
       title: 'Curated market',
       tabMarket: 'More curated plugins',
       tabInstalled: 'Installed',
+      downloads: 'Downloaded {count} times',
+      downloadsHint: 'Downloads of this plugin on npm; click to verify',
       installedTitle: 'Installed plugins',
       installedHint: 'Enable, disable, or remove plugins here; bundles that ship with DSH cannot be removed.',
       installedCount: '{count}',
@@ -440,6 +446,21 @@ window.__ModuleLoader__.load({
     }
 
     /** Format a publish timestamp in the reader's language. */
+    /**
+     * A count a reader can take in at a glance.
+     *
+     * Below a thousand the exact number is the honest one; above it the last digits
+     * say nothing, so the number is rounded to thousands and marked with a plus.
+     */
+    function formatCount(value) {
+      const count = Number(value)
+      if (!Number.isFinite(count) || count <= 0) return '0'
+      if (count < 1000) return String(Math.round(count))
+      if (count < 10000) return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}k`
+      if (count < 1000000) return `${Math.round(count / 1000)}k`
+      return `${(count / 1000000).toFixed(1).replace(/\.0$/, '')}M`
+    }
+
     function formatDate(seconds, language) {
       if (typeof seconds !== 'number' || !Number.isFinite(seconds)) return ''
       try {
@@ -605,6 +626,7 @@ window.__ModuleLoader__.load({
       paging: false,
       offset: 0,
       fromCache: false,     // the list on screen was painted from the stored answer
+      downloads: null,      // monthly downloads of this plugin, when npm answered
       view: VIEW_INSTALLED,
       installed: {
         status: 'idle',        // idle | loading | ready | error
@@ -764,6 +786,34 @@ window.__ModuleLoader__.load({
         const given = this.store.get().names[entry.name]
         if (typeof given === 'string' && given !== '') return given
         return textOf(entry.title, language) || entry.name
+      }
+
+      /**
+       * Read this plugin's own download count from npm.
+       *
+       * npm publishes downloads, not installations: one reader may produce several
+       * downloads, and mirrors and CI count too. The figure is therefore labelled as
+       * downloads and shown only when the registry answered — a page that invented a
+       * number would be lying about the one thing the number exists to prove.
+       *
+       * @param force read again even when a figure is already held.
+       */
+      async loadDownloads(force = false) {
+        if (this.downloadsAsked === true && force !== true) return
+        this.downloadsAsked = true
+        let answer
+        try {
+          const response = await fetch(`https://api.npmjs.org/downloads/point/last-month/${OWN_PACKAGE}`)
+          if (!response.ok) return
+          answer = await response.json()
+        } catch (error) {
+          // Offline, blocked, or the registry is down: the header simply omits it.
+          this.downloadsAsked = false
+          return
+        }
+        if (this.disposed) return
+        const count = Number(answer?.downloads)
+        if (Number.isFinite(count) && count > 0) this.patch({ downloads: count })
       }
 
       /** The day number used by the daily rotation. */
@@ -2805,6 +2855,7 @@ window.__ModuleLoader__.load({
       // background and is usually ready before the reader switches to it.
       useEffect(() => {
         controller.primeInstalled()
+        controller.loadDownloads()
         controller.warmCatalogue()
       }, [])
       // `listing` is read by the resolvers below, so it is bound first.
@@ -2868,7 +2919,17 @@ window.__ModuleLoader__.load({
           h('header', { className: 'dem-head' },
             h('div', { className: 'dem-headTop' },
               h('div', { className: 'dem-headText' },
-                h('h1', { className: 'dem-title' }, t('title')),
+                h('div', { className: 'dem-titleRow' },
+                  h('h1', { className: 'dem-title' }, t('title')),
+                  // Only when npm answered: an absent figure is better than a guess,
+                  // and the link lets a reader check it.
+                  state.downloads === null ? null : h('a', {
+                    className: 'dem-downloads',
+                    href: `https://www.npmjs.com/package/dsh-expert-market`,
+                    target: '_blank', rel: 'noreferrer noopener',
+                    title: t('downloadsHint'),
+                  }, h(IconDownload, { size: 12 }),
+                  fill(t('downloads'), { count: formatCount(state.downloads) }))),
                 h('p', { className: 'dem-subtitle' }, t('subtitle'))),
               h('div', { className: 'dem-toolbar' },
                 state.indexes.length <= 1 ? null
@@ -3688,6 +3749,30 @@ window.__ModuleLoader__.load({
 .dem-head { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; width: 100%; }
 .dem-headTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; }
 .dem-headText { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+/* The title row holds the name and the page's own download figure, so the number sits
+   on the title's baseline instead of in the toolbar, which belongs to the catalogue. */
+.dem-titleRow { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.dem-downloads {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 1px 8px; border-radius: 999px;
+  background: var(--dsw-alias-bg-layer-2);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 11.5px; line-height: 17px; font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none; white-space: nowrap;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+@media (hover: hover) {
+  .dem-downloads:hover {
+    background: color-mix(in srgb, var(--dsw-alias-brand-primary) 14%, var(--dsw-alias-bg-layer-2));
+    color: var(--dsw-alias-brand-primary);
+  }
+}
+.dem-downloads:focus-visible {
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color);
+  outline-offset: 2px;
+}
+.dem-downloads svg { flex: none; opacity: 0.75; }
 .dem-title { margin: 0; font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em; }
 .dem-subtitle { margin: 0; max-width: 62ch; font-size: 13px; line-height: 20px; color: var(--dsw-alias-label-tertiary); }
 .dem-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }

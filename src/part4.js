@@ -34,6 +34,30 @@
 .dem-head { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; width: 100%; }
 .dem-headTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; }
 .dem-headText { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+/* The title row holds the name and the page's own download figure, so the number sits
+   on the title's baseline instead of in the toolbar, which belongs to the catalogue. */
+.dem-titleRow { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.dem-downloads {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 1px 8px; border-radius: 999px;
+  background: var(--dsw-alias-bg-layer-2);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 11.5px; line-height: 17px; font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none; white-space: nowrap;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+@media (hover: hover) {
+  .dem-downloads:hover {
+    background: color-mix(in srgb, var(--dsw-alias-brand-primary) 14%, var(--dsw-alias-bg-layer-2));
+    color: var(--dsw-alias-brand-primary);
+  }
+}
+.dem-downloads:focus-visible {
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color);
+  outline-offset: 2px;
+}
+.dem-downloads svg { flex: none; opacity: 0.75; }
 .dem-title { margin: 0; font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em; }
 .dem-subtitle { margin: 0; max-width: 62ch; font-size: 13px; line-height: 20px; color: var(--dsw-alias-label-tertiary); }
 .dem-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }

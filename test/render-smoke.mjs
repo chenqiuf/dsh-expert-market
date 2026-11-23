@@ -266,6 +266,9 @@ const ctx = {
 const source = readFileSync(`${ROOT}/client.js`, 'utf8')
 let plugin = null
 const namesGiven = {}
+const fetchCalls = []
+/** Lets a test make npm refuse, so the absent-figure path is exercised. */
+const npmAnswer = { value: 'ok' }
 let namePostCount = 0
 async function fakeFetch(url, options) {
   if (url !== '/expert-market/names') throw new Error(`unexpected fetch ${url}`)
@@ -296,7 +299,15 @@ const localStorage = {
 }
 
 const sandbox = {
-  fetch: fakeFetch,
+  fetch: async (url, options) => {
+    // The download figure comes from npm directly; the stand-in answers as npm would.
+    if (String(url).includes('api.npmjs.org/downloads')) {
+      fetchCalls.push(String(url))
+      if (npmAnswer.value === 'fail') return { ok: false, status: 404 }
+      return { ok: true, status: 200, async json() { return { downloads: 1234, package: 'dsh-expert-market' } } }
+    }
+    return fakeFetch(url, options)
+  },
   window: { ...window, localStorage, __ModuleLoader__: { load: spec => { plugin = spec } } },
   document, console, setTimeout, clearTimeout, Intl, URL, Promise, JSON, Math, Date, Array, Object, String, Number, RegExp,
   crypto: { randomUUID: () => 'test-request-id' },
@@ -792,6 +803,32 @@ check('a reload keeps every given name',
   await settle(400)
 }
 
+// The page reports its own downloads, and only when npm actually answered.
+{
+  const page = injected.controller
+  await page.loadDownloads()
+  await settle(150)
+  check('the npm downloads figure is read', page.store.get().downloads === 1234,
+    String(page.store.get().downloads))
+  check('the figure is requested once', fetchCalls.filter(u => u.includes('api.npmjs.org')).length === 1,
+    String(fetchCalls.length))
+
+  // A failed read leaves the figure absent rather than showing a placeholder.
+  page.patch({ downloads: null })
+  page.downloadsAsked = false
+  npmAnswer.value = 'fail'
+  await page.loadDownloads()
+  await settle(120)
+  check('a failed read shows nothing', page.store.get().downloads === null,
+    String(page.store.get().downloads))
+  npmAnswer.value = 'ok'
+
+  // Restore, so the render checks below see the badge.
+  page.downloadsAsked = false
+  await page.loadDownloads()
+  await settle(120)
+}
+
 // The first-paint cache: a settled page is stored, and a cold start paints from it
 // before the live read replaces it.
 {
@@ -885,6 +922,8 @@ check('an unrelated install frame is ignored', true)
     'the promotion carries a visible ring': /border: 1px solid var\(--dsw-alias-brand-primary\)/.test(bundle),
     'opens on the installed list': /view: VIEW_INSTALLED/.test(bundle),
     'the catalogue warms in the background': /warmCatalogue/.test(bundle),
+    'own downloads shown': /dem-downloads/.test(bundle) && /loadDownloads/.test(bundle),
+    'the download count is formatted': /function formatCount/.test(bundle),
     'the original name stays visible': /dem-cardOriginal/.test(bundle) && /function originalOf/.test(bundle),
     'current source is marked': /dem-sourceCurrent/.test(bundle) && /indexCurrent/.test(bundle),
     'plugins page tab': /name: 'plugins\.tab'/.test(bundle) && /order: -2/.test(bundle),
