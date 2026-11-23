@@ -15,6 +15,8 @@ if [ -n "$DIRTY" ]; then
   git status --short | head -10
   exit 1
 fi
+# The code commit is HEAD when the tree is clean except for the index; that is the
+# commit a reader must fetch.
 COMMIT=$(git rev-parse HEAD)
 STAMP=$(node -p "Date.now()")
 
