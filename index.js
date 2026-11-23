@@ -38,6 +38,24 @@ const CJK = /[\u4e00-\u9fff]/
  * inventing a term.
  */
 const WORDS = {
+  // Common title words: a missing entry here is what turned "Pomodoro Timer" into
+  // 插件插件, so the everyday vocabulary is kept complete rather than illustrative.
+  timer: '计时器', timers: '计时器', pomodoro: '番茄钟', focus: '专注', reminder: '提醒',
+  reminders: '提醒', alarm: '闹钟', clock: '时钟', calendar: '日历', schedule: '日程',
+  upload: '上传', download: '下载', sync: '同步', synchronise: '同步', synchronize: '同步',
+  format: '格式化', formatter: '格式化', validate: '校验', validator: '校验器',
+  mock: '模拟', fake: '模拟', stub: '桩', simulate: '模拟',
+  translate: '翻译', translator: '翻译器', translation: '翻译', language: '语言',
+  backup: '备份', restore: '恢复', archive: '归档', snapshot: '快照',
+  diff: '差异', compare: '对比', merge: '合并', split: '拆分',
+  compress: '压缩', resize: '缩放', convert: '转换', convertor: '转换器', converter: '转换器',
+  dark: '暗色', light: '亮色', colour: '配色', monochrome: '单色', gradient: '渐变',
+  endpoint: '接口', endpoints: '接口', request: '请求', response: '响应', http: 'HTTP',
+  csv: 'CSV', json: 'JSON', yaml: 'YAML', xml: 'XML', sql: 'SQL', regex: '正则',
+  sftp: 'SFTP', ftp: 'FTP', ssh: 'SSH', scp: 'SCP', tunnel: '隧道', proxy: '代理',
+  search: '搜索', find: '查找', filter: '筛选', sort: '排序', tag: '标签', tags: '标签',
+  note: '笔记', notes: '笔记', todo: '待办', todos: '待办', task: '任务', tasks: '任务',
+  bookmark: '书签', snippet: '片段', template: '模板',
   memory: '记忆', mem: '记忆', recall: '回忆', eternal: '永恒', remember: '记忆',
   session: '会话', sessions: '会话', conversation: '对话', chat: '聊天', message: '消息', messages: '消息',
   model: '模型', models: '模型', llm: '大模型', provider: '供应商', providers: '供应商', router: '路由', gateway: '网关',
@@ -49,13 +67,13 @@ const WORDS = {
   markdown: 'Markdown', image: '图片', images: '图片', vision: '视觉', video: '视频', audio: '音频', voice: '语音',
   sound: '声音', music: '音乐', media: '媒体', canvas: '画布', graph: '图表', chart: '图表', tree: '树',
   viewer: '查看器', preview: '预览', reader: '阅读器', board: '看板', card: '卡片', cards: '卡片', badge: '徽章',
-  search: '搜索', find: '查找', fetch: '抓取', crawl: '爬取', scrape: '抓取', browser: '浏览器', web: '网页',
-  proxy: '代理', tunnel: '隧道', remote: '远程', mobile: '手机端', desktop: '桌面', native: '原生',
-  git: 'Git', github: 'GitHub', gitlab: 'GitLab', review: '评审', diff: '差异', commit: '提交',
+  fetch: '抓取', crawl: '爬取', scrape: '抓取', browser: '浏览器', web: '网页',
+  remote: '远程', mobile: '手机端', desktop: '桌面', native: '原生',
+  git: 'Git', github: 'GitHub', gitlab: 'GitLab', review: '评审', commit: '提交',
   mcp: 'MCP', api: 'API', skill: '技能', skills: '技能', tool: '工具', tools: '工具', kit: '工具包',
   plugin: '插件', plugins: '插件', extension: '扩展', addon: '扩展', module: '模块', widget: '小部件',
   agent: '代理', agents: '代理', subagent: '子代理', team: '团队', swarm: '集群', workflow: '工作流',
-  task: '任务', tasks: '任务', todo: '待办', plan: '计划', schedule: '定时', cron: '定时',
+  plan: '计划', cron: '定时',
   prompt: '提示词', context: '上下文', compact: '压缩', compaction: '压缩', token: 'Token', tokens: 'Token',
   usage: '用量', cost: '费用', billing: '计费', balance: '余额', quota: '配额', credit: '额度', credits: '额度',
   ledger: '账本', stats: '统计', status: '状态', monitor: '监控', meter: '计量', expense: '开销',
@@ -63,7 +81,7 @@ const WORDS = {
   approval: '审批', permission: '权限', guard: '守卫', safe: '安全', safety: '安全', security: '安全',
   check: '检查', audit: '审计', inspect: '检查', diagnostics: '诊断', doctor: '诊断', repair: '修复', fix: '修复',
   auth: '授权', oauth: '授权', login: '登录', account: '账户', key: '密钥', keys: '密钥', secret: '密钥',
-  sync: '同步', backup: '备份', restore: '恢复', export: '导出', import: '导入', archive: '归档',
+  export: '导出', import: '导入',
   update: '更新', upgrade: '升级', restart: '重启', reload: '重载', migrate: '迁移', version: '版本',
   cache: '缓存', queue: '队列', job: '作业', jobs: '作业', run: '运行', runner: '运行器',
   config: '配置', settings: '设置', option: '选项', options: '选项', preset: '预设', presets: '预设',
@@ -72,13 +90,13 @@ const WORDS = {
   bridge: '桥接', connect: '连接', connector: '连接器', link: '链接', hub: '中心', center: '中心',
   studio: '工作室', workbench: '工作台', lab: '实验室', forge: '工坊',
   manager: '管理器', manage: '管理', management: '管理', admin: '管理', dashboard: '仪表盘',
-  note: '笔记', notes: '笔记', journal: '日志', diary: '日志', log: '日志', history: '历史',
+  journal: '日志', diary: '日志', log: '日志', history: '历史',
   knowledge: '知识', wiki: '知识库', index: '索引', catalog: '目录',
-  translate: '翻译', translation: '翻译', i18n: '多语言', locale: '语言包', language: '语言包',
+  i18n: '多语言', locale: '语言包',
   persona: '人格', profile: '档案', soul: '灵魂', character: '角色', role: '角色',
   pet: '桌宠', whale: '鲸鱼', avatar: '分身',
   novel: '小说', story: '故事', writing: '写作', writer: '写作',
-  data: '数据', database: '数据库', sql: 'SQL', sqlite: 'SQLite', json: 'JSON', csv: 'CSV',
+  data: '数据', database: '数据库', sqlite: 'SQLite',
   drive: '云盘', cloud: '云端', storage: '存储', asset: '素材', assets: '素材', resource: '资源',
   quick: '快捷', fast: '快速', smart: '智能', auto: '自动', better: '优化版', improved: '增强版',
   advanced: '高级版', simple: '简约', minimal: '极简', custom: '自定义', personal: '个性化',
@@ -88,7 +106,7 @@ const WORDS = {
   daily: '每日', weekly: '每周', effort: '推理等级', thinking: '思考', reasoning: '推理',
   ask: '提问', question: '问答', answer: '回答', reply: '回复', feedback: '反馈',
   code: '代码', coding: '编程', programmer: '编程', dev: '开发', developer: '开发',
-  debug: '调试', test: '测试', tests: '测试', format: '格式化', build: '构建',
+  debug: '调试', test: '测试', tests: '测试', build: '构建',
   deploy: '部署', install: '安装', package: '包', dependency: '依赖',
   window: '窗口', screen: '屏幕', float: '悬浮', floating: '悬浮', overlay: '浮层',
   sticker: '贴纸', emoji: '表情', wave: '波形', pulse: '脉冲', damage: '伤害',
@@ -99,14 +117,14 @@ const WORDS = {
   crypto: '加密', wallet: '钱包', chain: '链',
   ops: '运维', diagnose: '诊断', harmonizer: '协调器', adapt: '适配', adapter: '适配器',
   inspector: '检查器', explorer: '浏览', navigator: '导航', launcher: '启动器',
-  optimize: '优化', optimizer: '优化器', compress: '压缩', split: '拆分', merge: '合并',
-  convert: '转换', converter: '转换器', encode: '编码', decode: '解码', encrypt: '加密',
+  optimize: '优化', optimizer: '优化器',
+  encode: '编码', decode: '解码', encrypt: '加密',
   decrypt: '解密', mask: '脱敏', redact: '脱敏',
   thread: '线程', concurrency: '并发', limit: '限制', timeout: '超时', retry: '重试',
   loop: '循环', hook: '钩子', event: '事件', trigger: '触发器', action: '动作', command: '命令',
-  button: '按钮', tag: '标签', tags: '标签', label: '标签', category: '分类',
-  sort: '排序', filter: '筛选', group: '分组', page: '分页',
-  mirror: '镜像', clone: '克隆', fork: '分叉', snapshot: '快照',
+  button: '按钮', label: '标签', category: '分类',
+  group: '分组', page: '分页',
+  mirror: '镜像', clone: '克隆', fork: '分叉',
 }
 
 /** Title tokens that carry no subject on their own. */
@@ -297,6 +315,28 @@ const CUT_TAIL = /(?:遥|超|小|多|大|长|短|高|低|快|慢|新|旧|早|晚
  * @param description the entry's Chinese description, with its leading figures.
  * @returns a head word such as `输入框`, or an empty string.
  */
+/** The name a description declares before its first colon, when it reads as one. */
+function declaredName(description) {
+  const text = String(description).replace(/^[★☆\s\d,.]+│?\s*/, '').trim()
+  // Only the opening of the description declares a name; a colon later in the text
+  // introduces a detail, not a title.
+  const head = /^([^：:，,。；;]{2,30})[：:]/.exec(text)
+  if (head === null) return ''
+  const candidate = head[1].trim()
+  // A declarative opening ("一个可以…", "当…时") is narrative, not a name.
+  if (CLAUSE_OPEN.test(candidate)) return ''
+  // The name must still be Chinese after its brand words are dropped; otherwise the
+  // description is starting with a sentence, not a title.
+  const chinese = candidate.replace(/[A-Za-z][A-Za-z0-9+.\-_]*/g, ' ').replace(/[·|/]+/g, ' ').trim()
+  if (!CJK.test(chinese)) return ''
+  // "零 token 在线状态指示器" keeps its Chinese body and drops the Latin modifier:
+  // the result must be a phrase a reader would recognise, not a single particle.
+  const run = /[\u4e00-\u9fff]{2,}/.exec(chinese)
+  if (run === null) return ''
+  const name = run[0].replace(/[的了着过已并将把被让在]$/, '').trim()
+  return name.length >= 2 && name.length <= 16 ? name : ''
+}
+
 function functionName(description) {
   const text = String(description).replace(/^[★☆\s\d,.]+│?\s*/, '').trim()
   // A clause that opens as narrative ("当 Cookie…", "一个可以…") describes a
@@ -403,6 +443,14 @@ function chineseName(entry) {
     const object = objectName(description)
     if (object !== '' && object !== named) return finish(`${object} · ${named}`, category, description)
     return named
+  }
+
+  // A description that opens by naming the plugin is the best source there is: it is
+  // the author's own words, and it survives a title that only carries an author name.
+  const declared = declaredName(description)
+  if (declared !== '') {
+    const named = finish(declared, category, description)
+    if (CJK.test(named)) return named
   }
 
   // The description's own subject: the clause's head, then the object it acts on.

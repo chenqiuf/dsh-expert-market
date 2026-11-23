@@ -32,6 +32,10 @@ for (const file of process.argv.slice(2)) {
     else if (name.length > 12) failures.push(['too long', entry.name, name])
     else if (/^[的了着过已并]/.test(name)) failures.push(['leading particle', entry.name, name])
     else if (name.length >= 4 && /(的|多个|每个|任意)$/.test(name)) failures.push(['truncated', entry.name, name])
+    // "插件插件" is the rule admitting it recognised nothing. A repeated brand is a
+    // real word (哔哩哔哩, 钉钉), so only a repeat of a generic head fails.
+    else if (/^(插件|工具|应用|项目|功能|服务)\1+$/.test(name.replace(/[\s·]/g, ''))) failures.push(['repeated word', entry.name, name])
+    else if (name.replace(/[^\u4e00-\u9fff]/g, '').length === 1 && !/[A-Za-z]/.test(name)) failures.push(['single character', entry.name, name])
     else if (shown.length < 24) shown.push([entry.name, name])
   }
 }
