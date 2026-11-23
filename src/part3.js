@@ -239,18 +239,26 @@
                 }, h(IconRefresh, null)))),
             h('div', { className: 'dem-tabs', role: 'tablist', 'aria-label': t('title') },
               h('button', {
-                type: 'button', role: 'tab', 'aria-selected': state.view === VIEW_MARKET,
-                className: cls('dem-tab', state.view === VIEW_MARKET && 'dem-tabActive'),
-                onClick: () => { setOpened(null); resetScroll(); controller.setView(VIEW_MARKET) },
-              }, t('tabMarket')),
-              h('button', {
                 type: 'button', role: 'tab', 'aria-selected': state.view === VIEW_INSTALLED,
                 className: cls('dem-tab', state.view === VIEW_INSTALLED && 'dem-tabActive'),
                 onClick: () => { setOpened(null); resetScroll(); controller.setView(VIEW_INSTALLED) },
               }, t('tabInstalled'),
               state.installed.status === 'ready' && state.installed.rows.length > 0
                 ? h('span', { className: 'dem-tabCount' }, String(state.installed.rows.length))
-                : null)),
+                : null),
+              // The catalogue tab is the promotion: it carries a badge of how much is
+              // waiting and a warm tint, so the reader's eye lands on the door out of
+              // the installed list rather than on the list they are already in.
+              h('button', {
+                type: 'button', role: 'tab', 'aria-selected': state.view === VIEW_MARKET,
+                className: cls('dem-tab', 'dem-tabGo', state.view === VIEW_MARKET && 'dem-tabActive'),
+                onClick: () => { setOpened(null); resetScroll(); controller.setView(VIEW_MARKET) },
+              },
+                h('span', { className: 'dem-tabGoText' }, t('tabMarket')),
+                state.listing?.total > 0
+                  ? h('span', { className: 'dem-tabGoCount' }, String(state.listing.total))
+                  : null,
+                h(IconChevronRight, { size: 12 }))),
 
           state.view === VIEW_INSTALLED
             ? (state.installed.opened === null

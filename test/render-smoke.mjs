@@ -866,6 +866,14 @@ check('an unrelated install frame is ignored', true)
       return limits.every(token => token !== '2000' && token !== 'LOCAL_SEARCH_LIMIT')
     })(),
     'a chinese query pages through the host': /HOST_PAGE_LIMIT/.test(bundle) && /LOCAL_SEARCH_PAGES/.test(bundle),
+    'installed tab comes first': (() => {
+      const listAt = bundle.indexOf("role: 'tablist'")
+      const installedAt = bundle.indexOf("t('tabInstalled')", listAt)
+      const marketAt = bundle.indexOf("t('tabMarket')", listAt)
+      return listAt >= 0 && installedAt > listAt && marketAt > installedAt
+    })(),
+    'the catalogue tab is promoted': /dem-tabGo/.test(bundle) && /dem-tabGoCount/.test(bundle),
+    'the promotion carries a visible ring': /border: 1px solid var\(--dsw-alias-brand-primary\)/.test(bundle),
     'opens on the installed list': /view: VIEW_INSTALLED/.test(bundle),
     'the catalogue warms in the background': /warmCatalogue/.test(bundle),
     'the original name stays visible': /dem-cardOriginal/.test(bundle) && /function originalOf/.test(bundle),

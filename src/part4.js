@@ -278,6 +278,48 @@
   background: var(--dsw-alias-bg-layer-1);
   color: var(--dsw-alias-label-primary); font-weight: 600;
 }
+/* The catalogue tab is the promotion, not a peer of the installed one: a filled
+   surface, a heavier weight, a count of what waits, and a chevron pointing in. The
+   installed tab stays quiet, so the eye leaves the list it is already in. */
+.dem-tabGo {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-left: 4px; padding: 0 12px 0 14px;
+  /* A full-strength brand ring, not a tint: the outline is the strongest signal on a
+     dark toolbar, and it survives next to the quiet installed tab. */
+  border: 1px solid var(--dsw-alias-brand-primary);
+  background: color-mix(in srgb, var(--dsw-alias-brand-primary) 16%, var(--dsw-alias-bg-layer-1));
+  color: var(--dsw-alias-brand-primary);
+  font-weight: 600;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--dsw-alias-brand-primary) 15%, transparent),
+    0 2px 8px color-mix(in srgb, var(--dsw-alias-brand-primary) 22%, transparent);
+}
+@media (hover: hover) {
+  .dem-tabGo:hover {
+    border-color: var(--dsw-alias-brand-primary);
+    background: color-mix(in srgb, var(--dsw-alias-brand-primary) 26%, var(--dsw-alias-bg-layer-1));
+    color: var(--dsw-alias-brand-primary);
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--dsw-alias-brand-primary) 22%, transparent),
+      0 4px 14px color-mix(in srgb, var(--dsw-alias-brand-primary) 30%, transparent);
+  }
+  .dem-tabGo:hover svg { transform: translateX(2px); }
+}
+.dem-tabGoText { white-space: nowrap; }
+.dem-tabGoCount {
+  flex: none; padding: 0 6px; border-radius: 999px;
+  background: color-mix(in srgb, var(--dsw-alias-brand-primary) 22%, transparent);
+  font-size: 10.5px; line-height: 16px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.dem-tabGo svg { flex: none; opacity: 0.8; transition: transform 160ms ease; }
+/* While it is the active view the promotion has done its job, so it reads as a tab. */
+.dem-tabGo.dem-tabActive {
+  border: 1px solid var(--dsw-alias-border-l2);
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-primary);
+  box-shadow: none;
+}
 .dem-tab:focus-visible {
   outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color);
   outline-offset: 2px;
