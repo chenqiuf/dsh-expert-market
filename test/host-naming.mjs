@@ -207,6 +207,36 @@ console.log('a wrong method is refused:', wrong.status === 405)
   if (!improved) process.exitCode = 1
 }
 
+// A file changed outside the plugin must be read again, not overwritten from a cached
+// copy: the plugin is not the only writer a profile can have.
+{
+  const path = join(home, 'expert-market', 'plugin-names.json')
+  const store = JSON.parse(await readFile(path, 'utf8'))
+  const victim = entries[3].name
+  // Remove one name and stamp the file, as another process would.
+  delete store.names[victim]
+  delete store.by[victim]
+  const { writeFile } = await import('node:fs/promises')
+  await writeFile(path, JSON.stringify(store), 'utf8')
+
+  let handler5 = null
+  const stub = await import('/Users/mac/Documents/deepseek-harness/default-workspace/dsh-expert-market/index.js?v=5')
+  stub.apply({
+    get() { return undefined },
+    inject(_n, fn) { fn({ effect: f => f(), webServer: { register: r => { handler5 = r.handler; return () => {} } } }) },
+    logger: { warn() {}, info() {} },
+  })
+  const read5 = () => new Promise((resolve) => {
+    const req = { method: 'GET', on(e, l) { if (e === 'end') l(); return req }, destroy() {} }
+    const res = { headersSent: false, writeHead() { res.headersSent = true }, end(t) { resolve(JSON.parse(t)) } }
+    handler5(req, res)
+  })
+  const answer = await read5()
+  console.log('an external edit is seen by a fresh read:', answer.names[victim] === undefined,
+    String(answer.names[victim]))
+  if (answer.names[victim] !== undefined) process.exitCode = 1
+}
+
 await rm(home, { recursive: true, force: true })
 const ok = Object.keys(names).length === LIMIT && chinese === LIMIT && kept && second.body.added === 0 && bad.status === 400
 console.log(ok ? '\nHOST OK' : '\nHOST PROBLEM')

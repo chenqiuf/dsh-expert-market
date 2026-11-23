@@ -14,7 +14,7 @@
  * - `POST /expert-market/names` — the entries the page is about to show; answers
  *   the complete name map, computing only names that were never given.
  */
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, rename, stat, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 
@@ -599,11 +599,35 @@ const modelDecided = new Set()
 const ruleGiven = new Set()
 
 let recordPromise = null
+/** The file's modification time when it was last read, so an external change is seen. */
+let recordStamp = null
 
-/** Resolve the shared record, reading the stored file at most once. */
-function record(ctx) {
-  if (recordPromise === null) recordPromise = readStore(ctx)
+/**
+ * Resolve the shared record, re-reading it when the stored file has changed.
+ *
+ * Reading once is what keeps the page fast; but the plugin is not the only writer a
+ * profile can have, and a cached copy would otherwise overwrite the file with stale
+ * names. The stamp check is a single stat, while a rewrite of anything a reader saw
+ * is not recoverable.
+ */
+async function record(ctx) {
+  const path = storePath()
+  const stamp = await fileStamp(path)
+  if (recordPromise === null || (stamp !== null && stamp !== recordStamp)) {
+    recordStamp = stamp
+    recordPromise = readStore(ctx)
+  }
   return recordPromise
+}
+
+/** The stored file's modification time, or null when it does not exist yet. */
+async function fileStamp(path) {
+  try {
+    const info = await stat(path)
+    return info.mtimeMs
+  } catch (error) {
+    return null
+  }
 }
 
 /**

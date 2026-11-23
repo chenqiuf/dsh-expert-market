@@ -3,6 +3,10 @@
     const NS = 'expertMarket'
     /** Main-panel key and sidebar entry id; one value so the panel and its icon stay paired. */
     const PANEL_ID = 'expert-market'
+    /** How many entries one Chinese-name search reads at once: enough to cover an
+     *  index this size without paging, and bounded so a huge index cannot stall. */
+    const LOCAL_SEARCH_LIMIT = 2000
+
     /** Entries per page: a page is what a reader scans before choosing, and 24 keeps
      *  the grid one comfortable screenful at a typical window width. */
     const PAGE_SIZE = 24
@@ -87,6 +91,8 @@
       subtitle: '按场景逛插件：分类大卡选方向，卡片看细节，点开就是一页说明书。',
       search: '搜索插件、作者或关键词',
       searchLabel: '搜索插件',
+      searchBoth: '同时支持中文名和原插件名搜索',
+      indexCurrent: '当前选中',
       indexMenu: '插件源',
       indexManage: '添加或删除插件源…',
       indexAddPlaceholder: 'https://example.com/index.json',
@@ -256,6 +262,8 @@
       subtitle: 'Browse by situation: pick a category card, scan the cards, and open one for a full page of facts.',
       search: 'Search plugins, authors, or keywords',
       searchLabel: 'Search plugins',
+      searchBoth: 'Searches Chinese names and original plugin names',
+      indexCurrent: 'Current',
       indexMenu: 'Plugin source',
       indexManage: 'Add or remove sources…',
       indexAddPlaceholder: 'https://example.com/index.json',
@@ -795,12 +803,16 @@
           status: this.store.get().listing === null ? 'loading' : 'refreshing',
           failure: null, reason: '', paging: offset > 0,
         })
+        // A Chinese query is resolved locally: the Host indexes the source's own
+        // fields and cannot see the names this plugin invented. Asking it for the
+        // whole index once is cheaper than scanning it again on every keystroke.
+        const chineseQuery = /[\u4e00-\u9fff]/.test(String(query.text ?? ''))
         const request = {
-          text: query.text,
+          text: chineseQuery ? '' : query.text,
           labels: query.labels,
           sort: query.sort,
-          offset,
-          limit: PAGE_SIZE,
+          offset: chineseQuery ? 0 : offset,
+          limit: chineseQuery ? LOCAL_SEARCH_LIMIT : PAGE_SIZE,
           ...query.category === null ? {} : { category: query.category },
         }
         let answer
@@ -816,7 +828,18 @@
           return
         }
         const value = answer.value
-        const entries = value.entries
+        let entries = value.entries
+        let total = value.total
+        let nextOffset = value.nextOffset
+        if (chineseQuery) {
+          // Remember the unfiltered set so later keystrokes filter it again without
+          // another read.
+          this.fullListing = { url: value.url, entries }
+          const picked = this.localChinesePage(entries, query) ?? []
+          entries = picked
+          total = picked.length
+          nextOffset = null
+        }
         // Fill the page in the order it is read: the category row first, then the
         // popular names, then the grid. The index header arrives with this answer, so
         // the cards need no extra round trip to appear.
@@ -826,8 +849,8 @@
           description: value.description,
           metadata: value.metadata,
           entries,
-          total: value.total,
-          nextOffset: value.nextOffset,
+          total,
+          nextOffset,
           fetchedAt: value.fetchedAt,
         }
         const firstPaint = options?.refresh === true || this.heroFor !== value.url
@@ -1363,6 +1386,61 @@
           return
         }
         void this.load(url, next)
+      }
+
+      /**
+       * The entries whose Chinese name matches a query.
+       *
+       * The Host searches the index's own fields — package name, original title,
+       * keywords — so a Chinese name this plugin invented is invisible to it. The
+       * stored names are searched here instead, and the answer is merged into the
+       * grid so one box answers both vocabularies.
+       *
+       * @param text the query as typed.
+       * @returns the package names whose given Chinese name contains the text.
+       */
+      chineseMatches(text) {
+        const needle = String(text ?? '').trim().toLowerCase()
+        if (needle === '') return []
+        const names = this.store.get().names
+        const matched = []
+        for (const [name, given] of Object.entries(names)) {
+          if (typeof given !== 'string' || given === '') continue
+          // A Latin query is not a Chinese name, so it is left to the Host.
+          if (!/[\u4e00-\u9fff]/.test(needle)) continue
+          if (given.toLowerCase().includes(needle)) matched.push(name)
+        }
+        return matched
+      }
+
+      /**
+       * Turn the host's page into the grid this query should show.
+       *
+       * A Chinese query is handled by reading the whole index once and filtering
+       * locally, because the Host cannot see the names this plugin invented. An
+       * earlier page that already filtered by text is replaced, so the two
+       * vocabularies never stack into an empty result.
+       *
+       * @param entries the host's entries for the current page.
+       * @param query the query those entries answer.
+       * @returns the entries to render.
+       */
+      localChinesePage(entries, query) {
+        const text = String(query?.text ?? '').trim()
+        if (text === '') return null
+        if (!/[\u4e00-\u9fff]/.test(text)) return null
+        const matched = new Set(this.chineseMatches(text))
+        if (matched.size === 0) return null
+        // The caller holds the index's full listing on the first page; filter it.
+        const all = this.fullListing?.entries
+        if (!Array.isArray(all)) return null
+        const byName = new Map(all.map(entry => [entry.name, entry]))
+        const picked = []
+        for (const name of matched) {
+          const entry = byName.get(name)
+          if (entry !== undefined) picked.push(entry)
+        }
+        return picked.length === 0 ? null : picked
       }
 
       /** Re-read the current page after an external change. */

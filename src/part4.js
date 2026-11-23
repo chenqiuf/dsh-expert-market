@@ -83,13 +83,31 @@
 }
 .dem-sourceInput:focus-visible { outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color); outline-offset: 1px; }
 .dem-menuItem {
+  position: relative;
   padding: 7px 10px; border: 0; border-radius: 8px; background: transparent; text-align: left;
   color: var(--dsw-alias-label-secondary); font: inherit; font-size: 13px; cursor: pointer;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .dem-menuItem:hover:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
 .dem-menuItem:disabled { opacity: 0.45; cursor: not-allowed; }
-.dem-menuItemActive { color: var(--dsw-alias-label-primary); font-weight: 500; }
+/* The selected source gets a tinted row, a left bar and a labelled tick: a menu you
+   scan in a second cannot rely on a font-weight change alone. */
+.dem-menuItemActive {
+  color: var(--dsw-alias-label-primary); font-weight: 600;
+  background: var(--dsw-alias-bg-layer-2);
+  box-shadow: inset 0 0 0 1px var(--dsw-alias-border-l2);
+}
+.dem-menuItemActive::before {
+  content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px;
+  border-radius: 0 2px 2px 0;
+  background: var(--dsw-alias-brand-primary);
+}
+.dem-sourceCurrent {
+  display: inline-flex; flex: none; align-items: center; gap: 4px;
+  margin-left: 8px; color: var(--dsw-alias-brand-primary);
+}
+.dem-sourceCurrentText { font-size: 11px; font-weight: 500; }
+.dem-sourceCurrent svg { flex: none; }
 .dem-menuItemBroken { color: var(--dsw-alias-label-tertiary); }
 .dem-menuName { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 

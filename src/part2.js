@@ -16,6 +16,8 @@
     const IconRefresh = () => glyph(['M16 10a6 6 0 1 1-1.8-4.3', 'M16 3.6V7h-3.4'])
     const IconPlus = () => glyph(['M10 4.4v11.2', 'M4.4 10h11.2'])
     const IconClose = () => glyph(['M5.5 5.5 14.5 14.5', 'M14.5 5.5 5.5 14.5'])
+    /** A tick: the current source in a menu, where colour alone is easy to miss. */
+    const IconCheck = (p) => glyph(['M4.5 10.5 7.8 13.8 15.5 6.2'], p)
     const IconStar = (p) => h('svg', {
       viewBox: '0 0 20 20', width: p?.size ?? 13, height: p?.size ?? 13, 'aria-hidden': true,
       className: p?.className,

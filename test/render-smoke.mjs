@@ -743,6 +743,38 @@ check('a reload keeps every given name',
   check('warming the same index twice costs nothing', calls.length === 0, calls.join('|'))
 }
 
+// One search box answers both vocabularies: the source's own name, which the Host
+// indexes, and the Chinese name this page gave the plugin.
+{
+  const page = injected.controller
+  // A Latin query goes to the Host untouched.
+  calls.length = 0
+  page.search({ ...page.store.get().query, text: 'safety' })
+  await settle(400)
+  check('a latin query reaches the host', calls.some(line => /"safety"/.test(line)), calls.slice(0, 1).join('|'))
+
+  // A Chinese query is resolved from the names the page already holds.
+  const names = page.store.get().names
+  const sample = Object.entries(names).find(([, given]) => /[\u4e00-\u9fff]/.test(given)?.[1] ?? '')
+  const chinese = Object.values(names).find(given => typeof given === 'string' && given.length >= 2 && /^[\u4e00-\u9fff]+$/.test(given))
+  if (chinese !== undefined) {
+    const needle = chinese.slice(0, 2)
+    calls.length = 0
+    page.search({ ...page.store.get().query, text: needle })
+    await settle(500)
+    const listing = page.store.get().listing
+    check('a chinese query is resolved locally',
+      listing !== null && listing.entries.some(entry => (names[entry.name] ?? '').includes(needle)),
+      `${needle} -> ${listing?.entries?.length ?? 0} entries`)
+    check('the chinese query does not reach the host with its text',
+      !calls.some(line => line.includes(needle)), calls.slice(0, 1).join('|'))
+  }
+
+  // Reset so the later checks see the plain first page.
+  page.search({ ...page.store.get().query, text: '' })
+  await settle(400)
+}
+
 // The first-paint cache: a settled page is stored, and a cold start paints from it
 // before the live read replaces it.
 {
@@ -820,6 +852,7 @@ check('an unrelated install frame is ignored', true)
     'cards read no more than they show': /seats \+ 3/.test(bundle),
     'page size is 24': /const PAGE_SIZE = 24/.test(bundle),
     'first-paint cache': /readCache/.test(bundle) && /writeCache/.test(bundle) && /fromCacheHint/.test(bundle),
+    'current source is marked': /dem-sourceCurrent/.test(bundle) && /indexCurrent/.test(bundle),
     'plugins page tab': /name: 'plugins\.tab'/.test(bundle) && /order: -2/.test(bundle),
     'tab surface fit': /data-surface/.test(bundle) && /data-surface='tab'/.test(bundle),
     // A bundle DSH provides can still be enabled or stopped; only the Host's own

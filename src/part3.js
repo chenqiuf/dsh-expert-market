@@ -216,7 +216,8 @@
                     onAdd: (url) => controller.addIndex(url),
                     onRemove: (url) => controller.removeIndex(url),
                   }),
-                h('div', { className: 'dem-search' },
+                h('div', { className: 'dem-searchWrap' },
+                  h('div', { className: 'dem-search' },
                   h(IconSearch, { size: 14 }),
                   h('input', {
                     className: 'dem-searchInput', type: 'search', value: text, placeholder: t('search'),
@@ -227,6 +228,7 @@
                       controller.search({ ...controller.snapshot.query, text: next })
                     },
                   })),
+                  h('span', { className: 'dem-searchHint' }, t('searchBoth'))),
                 h('button', {
                   type: 'button', className: 'dem-ghost dem-ghostIcon', 'aria-label': t('refresh'),
                   disabled: state.status === 'loading',
@@ -464,7 +466,14 @@
           onClick: () => { onSelect(index.url); setOpen(false) },
         },
           h('span', { className: 'dem-sourceName' }, indexLabel(index, language)),
-          broken ? h('span', { className: 'dem-sourceBad' }, t('indexBroken')) : null),
+          broken ? h('span', { className: 'dem-sourceBad' }, t('indexBroken')) : null,
+          // The selected row carries a visible tick and a bar, not only a colour
+          // difference: on a dark menu a weight change alone is easy to miss.
+          index.url === current
+            ? h('span', { className: 'dem-sourceCurrent', 'aria-hidden': true },
+              h('span', { className: 'dem-sourceCurrentText' }, t('indexCurrent')),
+              h(IconCheck, { size: 13 }))
+            : null),
         h('button', {
           type: 'button', className: 'dem-sourceRemove',
           'aria-label': fill(t('indexRemoveNamed'), { url: index.url }),
