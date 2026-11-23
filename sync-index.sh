@@ -9,7 +9,7 @@ cd "$(dirname "$0")"
 VERSION=$(node -p "require('./package.json').version")
 # Only the index may be uncommitted: everything else must already be in the commit
 # whose hash the index will name, or the index would point at code without it.
-DIRTY=$(git status --porcelain 2>/dev/null | grep -v '^.. dist/index.json$' | head -1)
+DIRTY=$(git status --porcelain 2>/dev/null | { grep -v '^.. dist/index.json$' || true; } | head -1)
 if [ -n "$DIRTY" ]; then
   echo "✗ 除 dist/index.json 外还有未提交的改动，先提交它们"
   git status --short | head -10
