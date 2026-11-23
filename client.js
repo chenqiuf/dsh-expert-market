@@ -55,7 +55,7 @@ window.__ModuleLoader__.load({
     const zh = {
       nav: '精选市场',
       title: '精选市场',
-      tabMarket: '逛插件',
+      tabMarket: '更多精选插件',
       tabInstalled: '已安装',
       installedTitle: '已安装插件',
       installedHint: '在这里启用、停用或卸载插件；随 DSH 提供的插件不能卸载。',
@@ -225,7 +225,7 @@ window.__ModuleLoader__.load({
     const en = {
       nav: 'Curated market',
       title: 'Curated market',
-      tabMarket: 'Browse',
+      tabMarket: 'More curated plugins',
       tabInstalled: 'Installed',
       installedTitle: 'Installed plugins',
       installedHint: 'Enable, disable, or remove plugins here; bundles that ship with DSH cannot be removed.',
@@ -605,7 +605,7 @@ window.__ModuleLoader__.load({
       paging: false,
       offset: 0,
       fromCache: false,     // the list on screen was painted from the stored answer
-      view: VIEW_MARKET,
+      view: VIEW_INSTALLED,
       installed: {
         status: 'idle',        // idle | loading | ready | error
         reason: '',
@@ -1059,6 +1059,20 @@ window.__ModuleLoader__.load({
         if (this.installedPrimed === true) return
         this.installedPrimed = true
         void this.loadInstalled()
+      }
+
+      /**
+       * Read the catalogue without showing it.
+       *
+       * The page opens on the installed list, which needs only local profile data. The
+       * market index is the slow part — a public index is two megabytes — so it is read
+       * once at mount and left ready; switching tabs then shows a page that already
+       * exists instead of starting a download the reader must wait behind.
+       */
+      warmCatalogue() {
+        if (this.catalogueWarmed === true) return
+        this.catalogueWarmed = true
+        void this.ensure()
       }
 
       /** Switch between the catalogue and the installed list. */
@@ -2779,7 +2793,12 @@ window.__ModuleLoader__.load({
       const resetScroll = useCallback(() => {
         if (scroll.current !== null) scroll.current.scrollTop = 0
       }, [])
-      useEffect(() => { controller.ensure() }, [])
+      // The installed list is local, so it paints first; the catalogue is warmed in the
+      // background and is usually ready before the reader switches to it.
+      useEffect(() => {
+        controller.primeInstalled()
+        controller.warmCatalogue()
+      }, [])
       // `listing` is read by the resolvers below, so it is bound first.
       const listing = state.listing
       const nameOf = useCallback((entry, language) => controller.nameOf(entry, language), [state.names])

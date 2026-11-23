@@ -383,6 +383,10 @@ check('the injection leaves t to the slot kit', Object.hasOwn(main.options.injec
 render(React.createElement(main.Component, injected))
 await settle()
 console.log('render: after the index reads')
+check('the page opens on the installed list',
+  injected.controller.store.get().view === 'installed', injected.controller.store.get().view)
+// Switch to the catalogue the way a reader does, then read what it drew.
+injected.controller.setView('market')
 let text = render(React.createElement(main.Component, injected))
 await settle(200)
 // The page publishes its URL before the listing, and the names arrive from the Host
@@ -862,6 +866,8 @@ check('an unrelated install frame is ignored', true)
       return limits.every(token => token !== '2000' && token !== 'LOCAL_SEARCH_LIMIT')
     })(),
     'a chinese query pages through the host': /HOST_PAGE_LIMIT/.test(bundle) && /LOCAL_SEARCH_PAGES/.test(bundle),
+    'opens on the installed list': /view: VIEW_INSTALLED/.test(bundle),
+    'the catalogue warms in the background': /warmCatalogue/.test(bundle),
     'the original name stays visible': /dem-cardOriginal/.test(bundle) && /function originalOf/.test(bundle),
     'current source is marked': /dem-sourceCurrent/.test(bundle) && /indexCurrent/.test(bundle),
     'plugins page tab': /name: 'plugins\.tab'/.test(bundle) && /order: -2/.test(bundle),

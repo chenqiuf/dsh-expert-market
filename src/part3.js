@@ -139,7 +139,12 @@
       const resetScroll = useCallback(() => {
         if (scroll.current !== null) scroll.current.scrollTop = 0
       }, [])
-      useEffect(() => { controller.ensure() }, [])
+      // The installed list is local, so it paints first; the catalogue is warmed in the
+      // background and is usually ready before the reader switches to it.
+      useEffect(() => {
+        controller.primeInstalled()
+        controller.warmCatalogue()
+      }, [])
       // `listing` is read by the resolvers below, so it is bound first.
       const listing = state.listing
       const nameOf = useCallback((entry, language) => controller.nameOf(entry, language), [state.names])
