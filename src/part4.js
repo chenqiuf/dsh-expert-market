@@ -521,6 +521,14 @@
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .dem-cardTitle:hover { color: var(--dsw-alias-brand-primary); }
+/* The original name sits under the Chinese one: quieter, single line, and it never
+   wraps the card taller. */
+.dem-cardOriginal {
+  display: block; max-width: 100%;
+  font-size: 11px; line-height: 15px; color: var(--dsw-alias-label-tertiary);
+  font-family: var(--ds-font-family-code);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .dem-cardMeta {
   font-size: 11.5px; line-height: 16px; color: var(--dsw-alias-label-tertiary);
   font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;

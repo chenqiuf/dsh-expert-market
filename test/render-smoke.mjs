@@ -862,6 +862,7 @@ check('an unrelated install frame is ignored', true)
       return limits.every(token => token !== '2000' && token !== 'LOCAL_SEARCH_LIMIT')
     })(),
     'a chinese query pages through the host': /HOST_PAGE_LIMIT/.test(bundle) && /LOCAL_SEARCH_PAGES/.test(bundle),
+    'the original name stays visible': /dem-cardOriginal/.test(bundle) && /function originalOf/.test(bundle),
     'current source is marked': /dem-sourceCurrent/.test(bundle) && /indexCurrent/.test(bundle),
     'plugins page tab': /name: 'plugins\.tab'/.test(bundle) && /order: -2/.test(bundle),
     'tab surface fit': /data-surface/.test(bundle) && /data-surface='tab'/.test(bundle),

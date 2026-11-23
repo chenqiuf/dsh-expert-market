@@ -652,6 +652,22 @@
             h('span', { className: 'dem-heroCount' }, fill(t('heroCount'), { count: category.total })))))
     }
 
+    /**
+     * The plugin's own name, as the index or the registry spells it.
+     *
+     * A card leads with the Chinese name this plugin gave, so the original has to be
+     * shown somewhere or a reader who knows the Latin name cannot confirm identity.
+     * A scope prefix is dropped for width; the full package stays in the title text.
+     */
+    function originalOf(entry) {
+      const raw = textOf(entry.title, 'zh') || textOf(entry.title, 'en') || ''
+      const name = String(entry.name ?? '')
+      const short = name.includes('/') ? name.slice(name.lastIndexOf('/') + 1) : name
+      // A title that is only the author's handle adds nothing beside the package.
+      const useful = raw !== '' && !/^[\w.-]+\/[\w.-]+$/.test(raw) ? raw : ''
+      return useful !== '' ? useful : short
+    }
+
     /** One plugin card: icon, title, two description lines, keywords, and a foot with real figures. */
     function EntryCard({ entry, t, language, nameOf, categoryOf, heat, heatLabel, onOpen, onInstall, onUpdate, onOpenInstalled }) {
       const version = versionOf(entry)
@@ -668,6 +684,11 @@
           h(MarketIcon, { entry, size: CARD_ICON, onClick: onOpen }),
           h('div', { className: 'dem-cardTitleWrap' },
             h('button', { type: 'button', className: 'dem-cardTitle', onClick: onOpen, title }, title),
+            // The package name stays visible: a reader who knows the plugin by its
+            // Latin name can still find it, and search matches either spelling.
+            originalOf(entry) !== title
+              ? h('span', { className: 'dem-cardOriginal', title: entry.name }, originalOf(entry))
+              : null,
             h('span', { className: 'dem-cardMeta' },
               fill(t('entryMeta'), { version: version?.version ?? '—', date: formatDate(version?.publishTimestamp, language) }))),
           h('div', { className: 'dem-cardAction' },
