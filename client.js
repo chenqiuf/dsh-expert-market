@@ -18,9 +18,10 @@ window.__ModuleLoader__.load({
     const NS = 'expertMarket'
     /** Main-panel key and sidebar entry id; one value so the panel and its icon stay paired. */
     const PANEL_ID = 'expert-market'
-    /** How many entries one Chinese-name search reads at once: enough to cover an
-     *  index this size without paging, and bounded so a huge index cannot stall. */
-    const LOCAL_SEARCH_LIMIT = 2000
+    /** The largest page the Host accepts: its query schema refuses anything above 100. */
+    const HOST_PAGE_LIMIT = 100
+    /** How many host pages one Chinese-name search will read before giving up. */
+    const LOCAL_SEARCH_PAGES = 20
 
     /** Entries per page: a page is what a reader scans before choosing, and 24 keeps
      *  the grid one comfortable screenful at a typical window width. */
@@ -104,9 +105,8 @@ window.__ModuleLoader__.load({
       rowError: '无法更改：{reason}',
       backToMarket: '去逛插件',
       subtitle: '按场景逛插件：分类大卡选方向，卡片看细节，点开就是一页说明书。',
-      search: '搜索插件、作者或关键词',
+      search: '搜索插件名或中文名',
       searchLabel: '搜索插件',
-      searchBoth: '同时支持中文名和原插件名搜索',
       indexCurrent: '当前选中',
       indexMenu: '插件源',
       indexManage: '添加或删除插件源…',
@@ -275,9 +275,8 @@ window.__ModuleLoader__.load({
       rowError: 'Could not change it: {reason}',
       backToMarket: 'Browse plugins',
       subtitle: 'Browse by situation: pick a category card, scan the cards, and open one for a full page of facts.',
-      search: 'Search plugins, authors, or keywords',
+      search: 'Search by plugin name or Chinese name',
       searchLabel: 'Search plugins',
-      searchBoth: 'Searches Chinese names and original plugin names',
       indexCurrent: 'Current',
       indexMenu: 'Plugin source',
       indexManage: 'Add or remove sources…',
@@ -827,12 +826,29 @@ window.__ModuleLoader__.load({
           labels: query.labels,
           sort: query.sort,
           offset: chineseQuery ? 0 : offset,
-          limit: chineseQuery ? LOCAL_SEARCH_LIMIT : PAGE_SIZE,
+          limit: chineseQuery ? HOST_PAGE_LIMIT : Math.min(PAGE_SIZE, HOST_PAGE_LIMIT),
           ...query.category === null ? {} : { category: query.category },
         }
         let answer
         try {
           answer = await this.marketOf().search(url, request)
+          // A Chinese query needs the whole index to filter, and the Host caps one
+          // page at 100. It pages through, stopping on a short page; a cached document
+          // makes these reads cheap after the first one.
+          if (chineseQuery && answer !== null && answer !== undefined && answer.ok === true
+            && Array.isArray(answer.value?.entries) && answer.value.entries.length === HOST_PAGE_LIMIT) {
+            const collected = [...answer.value.entries]
+            let cursor = answer.value.nextOffset
+            for (let page = 1; page < LOCAL_SEARCH_PAGES && cursor !== null && cursor !== undefined; page += 1) {
+              const next = await this.marketOf().search(url, { ...request, offset: cursor })
+              if (next === null || next === undefined || next.ok !== true
+                || !Array.isArray(next.value?.entries) || next.value.entries.length === 0) break
+              collected.push(...next.value.entries)
+              cursor = next.value.nextOffset
+              if (next.value.entries.length < HOST_PAGE_LIMIT) break
+            }
+            answer = { ok: true, value: { ...answer.value, entries: collected, total: collected.length, nextOffset: null } }
+          }
         } catch (error) {
           answer = { ok: false, error }
         }
@@ -2819,8 +2835,7 @@ window.__ModuleLoader__.load({
                     onAdd: (url) => controller.addIndex(url),
                     onRemove: (url) => controller.removeIndex(url),
                   }),
-                h('div', { className: 'dem-searchWrap' },
-                  h('div', { className: 'dem-search' },
+                h('div', { className: 'dem-search' },
                   h(IconSearch, { size: 14 }),
                   h('input', {
                     className: 'dem-searchInput', type: 'search', value: text, placeholder: t('search'),
@@ -2831,7 +2846,6 @@ window.__ModuleLoader__.load({
                       controller.search({ ...controller.snapshot.query, text: next })
                     },
                   })),
-                  h('span', { className: 'dem-searchHint' }, t('searchBoth'))),
                 h('button', {
                   type: 'button', className: 'dem-ghost dem-ghostIcon', 'aria-label': t('refresh'),
                   disabled: state.status === 'loading',

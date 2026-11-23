@@ -98,6 +98,10 @@ const market = {
   },
   async search(url, query) {
     calls.push(`search ${url} ${query.category ?? '*'} "${query.text ?? ''}" @${query.offset}`)
+    // The Host's own bound: a limit outside 1..100 is refused, not clamped.
+    if (!Number.isInteger(query.limit) || query.limit < 1 || query.limit > 100) {
+      return { ok: false, error: { message: 'limit must be an integer from 1 to 100' } }
+    }
     if (url === 'https://example.com/other.json') {
       const pool = otherAnnotated.filter(entry =>
         (query.category === undefined || entry.metadata.category === query.category))
@@ -852,6 +856,12 @@ check('an unrelated install frame is ignored', true)
     'cards read no more than they show': /seats \+ 3/.test(bundle),
     'page size is 24': /const PAGE_SIZE = 24/.test(bundle),
     'first-paint cache': /readCache/.test(bundle) && /writeCache/.test(bundle) && /fromCacheHint/.test(bundle),
+    'the host page bound is respected': (() => {
+      // Every limit the page sends must sit inside the Host's 1..100 range.
+      const limits = [...bundle.matchAll(/limit:\s*([A-Za-z0-9_.]+)/g)].map(m => m[1])
+      return limits.every(token => token !== '2000' && token !== 'LOCAL_SEARCH_LIMIT')
+    })(),
+    'a chinese query pages through the host': /HOST_PAGE_LIMIT/.test(bundle) && /LOCAL_SEARCH_PAGES/.test(bundle),
     'current source is marked': /dem-sourceCurrent/.test(bundle) && /indexCurrent/.test(bundle),
     'plugins page tab': /name: 'plugins\.tab'/.test(bundle) && /order: -2/.test(bundle),
     'tab surface fit': /data-surface/.test(bundle) && /data-surface='tab'/.test(bundle),
