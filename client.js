@@ -1113,7 +1113,14 @@ window.__ModuleLoader__.load({
           .map((bundle) => {
             // `installation` means DSH itself ships it; `profile` means it was
             // installed into this profile. The two differ in what can be done to it.
+            // Only `availability` answers "does DSH ship this". `official` means
+            // "listed in the catalog", which profile-installed bundles are too, so it
+            // must never be read as shipped: doing so hid a working enable button
+            // behind a "ships with DSH" note.
             const shipped = bundle.availability === 'installation'
+            // A bundle the profile installed can always be switched, whatever else the
+            // Host says about it; only the Host's own read-only reason blocks it.
+            const switchable = bundle.installed === true || shipped
             // A newer version exists only for a third-party registry package: the
             // Host refuses to list versions for official or Git copies.
             const updatable = !shipped
@@ -1127,6 +1134,7 @@ window.__ModuleLoader__.load({
               version: bundle.version ?? '',
               enabled: bundle.enabled === true,
               shipped,
+              switchable,
               origin: shipped ? 'shipped' : 'third-party',
               removable: bundle.removable === true,
               readOnlyReason: bundle.readOnlyReason ?? '',
@@ -3433,7 +3441,7 @@ window.__ModuleLoader__.load({
                     h('button', {
                       key: 'toggle', type: 'button', role: 'switch', 'aria-checked': row.enabled,
                       className: cls('dem-action', !row.enabled && 'dem-actionOutline'),
-                      disabled: working || row.readOnlyReason !== '',
+                      disabled: working || row.readOnlyReason !== '' || row.switchable === false,
                       title: row.readOnlyReason === '' ? undefined : row.readOnlyReason,
                       onClick: () => { onToggle(row.name, !row.enabled) },
                     }, working ? t('actionWorking') : (row.enabled ? t('actionDisable') : t('actionEnable'))),

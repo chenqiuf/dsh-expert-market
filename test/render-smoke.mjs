@@ -163,6 +163,10 @@ const installedRows = [
     update: 'registry', version: '0.4.3', meta: { title: { zh: '宠物' }, description: { zh: '桌面宠物。' } } },
   { name: 'dsh-theme-holo', official: false, availability: 'profile', enabled: false, installed: true, removable: true,
     update: 'registry', version: '1.2.0', meta: { title: { zh: '主题' }, description: { zh: '主题包。' } } },
+  // Installed into the profile AND listed in the catalog: the exact shape that used to
+  // grey out its switch behind a "ships with DSH" note.
+  { name: 'dsh-tui', official: true, availability: 'profile', enabled: false, installed: true, removable: true,
+    version: '0.20.2', meta: { title: { zh: '终端控制台' }, description: { zh: '终端代理。' } } },
   { name: 'dsh-base', official: true, availability: 'installation', enabled: true, installed: false, removable: false,
     version: '0.2.2', meta: { title: { zh: '基础包' }, description: { zh: 'DSH 自带。' } } },
   // A shipped bundle that is stopped: origin and running state are independent, and
@@ -423,7 +427,7 @@ check('a card shows its category', text.includes('工具') || text.includes('界
 }
 check('every market card title is Chinese',
   Object.entries(namesGiven)
-    .filter(([name]) => !/^(dsh-pet|dsh-base|dsh-cua-bundle|dsh-theme-holo|dsh-extra|not-installed)/.test(name))
+    .filter(([name]) => !/^(dsh-pet|dsh-base|dsh-cua-bundle|dsh-theme-holo|dsh-extra|dsh-tui|not-installed)/.test(name))
     .every(([, value]) => /[\u4e00-\u9fff]/.test(value)),
   Object.values(namesGiven).slice(0, 3).join(' / '))
 check('categories are listed', text.includes('工具') && text.includes('技能'))
@@ -598,7 +602,7 @@ check('a reload keeps every given name',
   await settle(300)
   const list = page.store.get().installed
   check('the installed view loads', list.status === 'ready', list.status)
-  check('only installed plugins are listed', list.rows.length === 4,
+  check('only installed plugins are listed', list.rows.length === 5,
     list.rows.map(row => row.name).join(','))
   check('a catalog-only entry is excluded', !list.rows.some(row => row.name === 'not-installed-plugin'))
   check('a shipped bundle is marked unremovable',
@@ -645,6 +649,11 @@ check('a reload keeps every given name',
     check('a shipped bundle reports its origin', rows.find(r => r.name === 'dsh-base')?.origin === 'shipped')
     check('an installed bundle reports its origin', rows.find(r => r.name === 'dsh-pet')?.origin === 'third-party')
     check('a shipped bundle is not updatable', rows.find(r => r.name === 'dsh-base')?.updatable === false)
+  check('a catalog bundle installed into the profile is not called shipped',
+    rows.find(r => r.name === 'dsh-tui')?.shipped === false,
+    String(rows.find(r => r.name === 'dsh-tui')?.shipped))
+  check('a catalog bundle installed into the profile stays switchable',
+    rows.find(r => r.name === 'dsh-tui')?.switchable === true)
   }
 
   // Checking updates asks only the packages that could have one.

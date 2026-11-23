@@ -1098,7 +1098,14 @@
           .map((bundle) => {
             // `installation` means DSH itself ships it; `profile` means it was
             // installed into this profile. The two differ in what can be done to it.
+            // Only `availability` answers "does DSH ship this". `official` means
+            // "listed in the catalog", which profile-installed bundles are too, so it
+            // must never be read as shipped: doing so hid a working enable button
+            // behind a "ships with DSH" note.
             const shipped = bundle.availability === 'installation'
+            // A bundle the profile installed can always be switched, whatever else the
+            // Host says about it; only the Host's own read-only reason blocks it.
+            const switchable = bundle.installed === true || shipped
             // A newer version exists only for a third-party registry package: the
             // Host refuses to list versions for official or Git copies.
             const updatable = !shipped
@@ -1112,6 +1119,7 @@
               version: bundle.version ?? '',
               enabled: bundle.enabled === true,
               shipped,
+              switchable,
               origin: shipped ? 'shipped' : 'third-party',
               removable: bundle.removable === true,
               readOnlyReason: bundle.readOnlyReason ?? '',

@@ -779,7 +779,7 @@
                     h('button', {
                       key: 'toggle', type: 'button', role: 'switch', 'aria-checked': row.enabled,
                       className: cls('dem-action', !row.enabled && 'dem-actionOutline'),
-                      disabled: working || row.readOnlyReason !== '',
+                      disabled: working || row.readOnlyReason !== '' || row.switchable === false,
                       title: row.readOnlyReason === '' ? undefined : row.readOnlyReason,
                       onClick: () => { onToggle(row.name, !row.enabled) },
                     }, working ? t('actionWorking') : (row.enabled ? t('actionDisable') : t('actionEnable'))),
