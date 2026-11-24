@@ -30,11 +30,11 @@
 例如：
 
 ```bash
-./fill-identity.sh chenqiuf "陈秋峰" "478826521@qq.com" "https://chenqiuf.github.io/dsh-expert-market/index.json"
+./fill-identity.sh chenqiuf "陈秋峰" "478826521@qq.com" "https://chenqiuf.github.io/dsh-expert-market/dist/index.json"
 ```
 
 > **已为你填好**：GitHub 用户名 `chenqiuf`、作者 `陈秋峰`、联系邮箱
-> `478826521@qq.com`、索引地址 `https://chenqiuf.github.io/dsh-expert-market/index.json`。
+> `478826521@qq.com`、索引地址 `https://chenqiuf.github.io/dsh-expert-market/dist/index.json`。
 > 如果这些信息要改，重跑一次上面的命令即可。
 
 它会自动做四件事：

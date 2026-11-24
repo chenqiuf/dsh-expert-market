@@ -37,7 +37,7 @@ DSH 自带的插件页是一行一条的索引列表。插件多起来之后，�
 在 DSH 的「插件」页打开「发现」，添加索引源：
 
 ```
-https://chenqiuf.github.io/dsh-expert-market/index.json
+https://chenqiuf.github.io/dsh-expert-market/dist/index.json
 ```
 
 然后搜索「精选市场」安装。安装会走与插件页相同的档案安装流程，
